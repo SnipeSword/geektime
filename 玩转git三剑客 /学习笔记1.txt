@@ -198,6 +198,21 @@ git commit --amend 命令应该是代替（或这说修改）上一次提交，�
 	  
 ps：其实在新建repository的时候，不勾选初始化README.md，远程仓库根本就没有任何的分支，当用户在本地提交代码到远程仓库时，这时远程仓库才创建主分支
 	  
+	  
+===== 场景2操作实例：
+git init
+git config --local user.name 'zhujian'
+git config --local user.email 'zhujiannupt@163.com'
+git add -A
+git status
+git commit -m 'docs:first version'
+git log --oneline
+
+git remote add origin git@github.com:SnipeSword/geektime.git
+git remote -v
+
+git pull --rebase origin master
+git push -u origin master
 	
 	
 
