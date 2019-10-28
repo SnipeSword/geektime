@@ -198,8 +198,9 @@ git commit --amend 命令应该是代替（或这说修改）上一次提交，�
 	  
 ps：其实在新建repository的时候，不勾选初始化README.md，远程仓库根本就没有任何的分支，当用户在本地提交代码到远程仓库时，这时远程仓库才创建主分支
 	  
-	  
-===== 场景2操作实例：
+
+
+======================= 实战1：本地有仓库，需要将本地仓库备份到github上	  
 git init
 git config --local user.name 'zhujian'
 git config --local user.email 'zhujiannupt@163.com'
@@ -211,10 +212,78 @@ git log --oneline
 git remote add origin git@github.com:SnipeSword/geektime.git
 git remote -v
 
-git pull --rebase origin master
+git pull --rebase origin master    # 若 github 无文件，即无分支，不需要该步骤，直接推送
 git push -u origin master
 	
 	
+======================= 实战2：在另外一台电脑B上使用相同的author
+好处是不要添加成员，不然得再新建一个 github 账号
+step1：上传电脑B的公钥到 github
+step2：
+git clone git@github.com:SnipeSword/geektime.git      # 从 github 上拉取仓库
+git config --local user.name 'zhujian'                # 设置 author 信息，跟原来的电脑仓库 author 保持一致
+git config --local user.email 'zhujiannupt@163.com'
+
+step3：本地仓库新增文件
+git add -A
+git status
+git commit -m 'docs:ELK、网络协议、Linux性能优化'
+git log --oneline
+
+git remote -v     # 远程仓库在 clone 的时候已经包含了，不需要添加
+
+step4：推送本地仓库
+git push -u origin master
+
+======================  实战3：新建一组密钥，指定新的密钥登陆github
+# 生成新的密钥
+$ ssh-keygen -t rsa -C "zhujiannupt@163"
+Generating public/private rsa key pair.
+Enter file in which to save the key (/c/Users/zhujian01/.ssh/id_rsa): /c/Users/zhujian01/.ssh/id_rsa_github
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /c/Users/zhujian01/.ssh/id_rsa_github.
+Your public key has been saved in /c/Users/zhujian01/.ssh/id_rsa_github.pub.
+The key fingerprint is:
+SHA256:0HgtpP9Pv8XbFs7PgRLLrFTDg/cMRr+UYZe6RNzM5Uw zhujiannupt@163
+The key's randomart image is:
++---[RSA 2048]----+
+|        .       E|
+|       = .  . ++o|
+|      + + .. = *o|
+|       + .+ + =  |
+|        S. X *   |
+|         .* @ +o |
+|         ..=.*o.+|
+|        . .o.. ==|
+|         .  . o+=|
++----[SHA256]-----+
+
+zhujian01@HIH-L-5013 MINGW64 ~/.ssh
+$ ll
+total 14
+-rw-r--r-- 1 zhujian01 1049089 1679 9月  25  2018 id_rsa
+-rw-r--r-- 1 zhujian01 1049089  408 9月  25  2018 id_rsa.pub
+-rw-r--r-- 1 zhujian01 1049089 1675 10月 28 16:05 id_rsa_github
+-rw-r--r-- 1 zhujian01 1049089  397 10月 28 16:05 id_rsa_github.pub
+-rw-r--r-- 1 zhujian01 1049089 1153 10月 28 14:39 known_hosts
+
+
+cat > config << EOF
+# 公钥1
+Host github.com
+HostName github.com
+User git
+IdentityFile ~/.ssh/id_rsa_github
+# 公钥2
+Host *
+IdentityFile ~/.ssh/id_rsa
+EOF
+
+
+ssh_config  sshd客户端的配置文件  https://www.cnblogs.com/xjshi/p/9146296.html
+
+
 
 
 
