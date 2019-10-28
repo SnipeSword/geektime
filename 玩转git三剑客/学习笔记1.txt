@@ -1,0 +1,223 @@
+-------版本管理的演变：
+    目录拷贝 -------- 集中式vcs ---- 分布式vcs --- Git
+    项目集成效率低下
+    
+-------git 的安装：https://git-scm.com/book/zh/v2
+
+-------git 最小化配置：
+
+1. 配置 username 和 email
+git config --global user.name 'your name'
+git config --global user.email 'your email'
+
+清除设置：git config --unset --local user.name
+
+2. config 的三个作用域
+缺省为 local
+git config --local  ： 只对当前仓库有效
+git config --global ： 对当前用户所有仓库有效
+git config --system ： 对系统所有登录的用户有效
+
+显示 config 配置： git config --list --local
+显示某个配置：git config --local user.name
+
+-------- 建git仓库
+场景一：把已有的项目代码纳入git管理
+    cd 项目代码所在的文件夹
+    git init
+场景二：新建的项目直接用git管理
+    cd 某个文件夹
+    git init your_project   # 会在当前路径下创建和项目名称同名的文件夹
+    cd your_project
+    
+    git config --global user.name 'your name'
+    git config --global user.email 'your email'
+    
+    添加文件readme
+    git add readme    # 可以加多个文件，目录
+    git status   # 可以查看暂存区
+    git commit -m 'add readme'  # 提交所有暂存区文件
+    git log   # 查看提交历史
+    
+---------- 往仓库里添加文件：
+工作目录---------------暂存区-----------------版本历史
+      git add files            git commit
+      
+git add -u：将文件的修改、文件的删除，添加到暂存区。
+git add .： 将文件的修改，文件的新建，添加到暂存区。
+git add -A：将文件的修改，文件的删除，文件的新建，添加到暂存区。
+
+工作中一般是用到 git add . 或者 git add -A
+
+git add -A 相对于git add -u命令的优点 ：可以提交所有被删除、被替换、被修改和新增的文件到数据暂存区，而git add -u 只能操作跟踪过的文件
+git add -A 等同于git add -all
+    
+------------ 文件重命名
+git reset --hard  # 彻底回退版本，清空暂存区，连本地文件都会被回退到上个版本的内容
+git reset --sort  # 只回退commit，如果你想再次提交直接git commit即可
+https://www.jianshu.com/p/8be0cc35e672
+git mv readme readme.md  # 会同步修改工作目录和暂存区
+git commit -m 'rename'
+
+------------- git log 看版本演变
+git log --oneline  # 简洁查看版本列表，默认master分支
+git log --oneline -n4  # 简洁查看master分支最近4个版本列表
+git branch -v  # 查看所有分支
+git log --all --oneline -n4   --graph #简洁查看所有分支z最近4个版本的图形化历史
+git help log --web   # 查看 git log 的 web 帮助文档
+
+
+
+-------------- git 图形界面
+cd git仓库
+gitk
+从master复制到分支时，会出现author和提交人不一样的情况
+
+
+--------------- 探秘 .git 目录
+git 可以做远程版本管理系统，也可以做本地版本管理系统
+
+.git
+    HEAD 文本文件 引用，说明git库正在工作的分支     git branch -av
+    config 存放本地仓库配置信息 ， git config  记录的内容
+    refs 
+        heads  分支 
+            master
+            temp 
+        tag
+    objects
+    
+    git cat-file -t  看类型
+    git cat-file -p  看内容
+    
+git cat-file 命令 显示版本库对象的内容、类型及大小信息。
+git cat-file -t b44dd71d62a5a8ed3 显示版本库对象的类型
+git cat-file -s b44dd71d62a5a8ed3 显示版本库对象的大小
+git cat-file -p b44dd71d62a5a8ed3 显示版本库对象的内容
+
+HEAD：指向当前的工作路径
+config：存放本地仓库（local）相关的配置信息。
+refs/heads:存放分支
+refs/tags:存放tag，又叫里程牌 （当这次commit是具有里程碑意义的 比如项目1.0的时候 就可以打tag）
+objects：存放对象 .git/objects/ 文件夹中的子文件夹都是以哈希值的前两位字符命名 每个object由40位字符组成，前两位字符用来当文件夹名，后38位做文件名。
+
+--- ps：查看暂存区内容的方法：
+1）显示暂存区所有文件对应的属性，包括blob的hash值。假设 $ git ls-files --stage 输出：
+100644 40e60301 0 LICENSE
+100644 10730a62 0 README.md
+
+2）用文件对应的blob查看文件的内容。比如：
+      $ git cat-file -p 10730a62
+      就会输出暂存区 README.md 文件的内容了。
+      
+
+----------------- commit tree blob 三个对象之间关系
+commit 包含一个tree，
+tree  保存commit时文件夹那时快照
+blob  具体的文件，只要内容相同，即便文件名不相同，也只是一个blob
+
+----------------- 分离头指针
+git branch -av   查看分支
+git checkout 分支号    切换分支
+
+git checkout commitId：会出现分离头指针的情况，这种情况下比较危险，因为这个时候你提交的代码没有和分支对应起来，当切换到其他分支的时候(比如master分支)，容易丢失代码；
+    但是分离头指针也有它的应用场景，就是在自己做尝试或者测试的时候可以分离头指针，当尝试完毕没有用的时候可以随时丢弃，但是如果觉得尝试有用，那么可以新建一个分支，使用 git branch <新分支的名称> commitId
+
+----------------- HEAD 和 branch
+HEAD 既可以指向分支的某个commit，也可以指向无分支的commit（即分离头指针）， HEAD最终一定是落到一个commit上的
+
+git checkout -b new_branch master   # 基于master创建新的分支，并切换到该分支下
+
+ZhujiandeMacBook-Pro:git_learning zhujian$ git log --oneline 
+bb632aa (HEAD -> branch01, master) rename file
+3302b8e add file
+
+ZhujiandeMacBook-Pro:git_learning zhujian$ git diff HEAD HEAD^1    # 比较当前和前一次的commit
+diff --git a/pac1.txt b/pac.txt
+similarity index 100%
+rename from pac1.txt
+rename to pac.txt
+
+HEAD^1^1 等价于  HEAD~2
+
+----------------- 删除不需要的分支
+git branch -av  # 查看所有分支
+git checkout -b new_branch master   # 基于master创建新的分支，并切换到该分支下
+git branch -d 分支名   # 删除分支   -D 表示强制删除
+使用-d 在删除前Git会判断在该分支上开发的功能是否被merge的其它分支。如果没有，不能删除。如果merge到其它分支，但之后又在其上做了开发，使用-d还是不能删除。-D会强制删除。
+
+从官网文档上了解-d的话必须已经将分支完全合并到其上游分支或者HEAD中，否则不能成功。分支比较好理解，HEAD的场景工作中比较少遇到，比较不容易理解，所以我还特意在本地做了一个实验，实验前置条件：从master分支创建了一个新分支test，并在test产生一个commit，然后切回master分支，此时test是领先master一个commit的。
+按照理解test直接用-d是删不掉的，那如何调整HEAD呢？利用前面学习的分离头指针！直接使用`git checkout 'test的commitID'`，这个时候`git log --all --graph`可以看到HEAD和test在同一个commit上，此时再次使用`git branch -d test`，奇迹发生了，成功删除了test分支。
+
+恢复被删除的分支  https://stackoverflow.com/questions/3640764/can-i-recover-a-branch-after-its-deletion-in-git
+
+切换分支：git checkout 分支名
+
+
+----------------- 修改最新 commit 的 message
+git commit --amend  # 对最近提交的一次message做变更
+git commit --amend 命令应该是代替（或这说修改）上一次提交，不只是修改message。
+比如上一次提交时有几个文件没有add以及commit，可以重新进行add之后再commit --amend提交。
+但这次提交之后不会增加一次新的commit，而是相当于在上一次commit的基础上进行修改。
+
+老师，我在掘金册子上面看到--amend 不只是修改最新commit的message 而是会创建一个将暂存区的内容生成一个commit，再将当前最新的commit替换成新生成的那一个
+
+
+
+
+
+
+
+--------------- 如何将git备份到本地
+本地备份：
+	哑协议：git clone --bare /Users/zhujian/git/git_learning/.git  new.git  #将git_learning 仓库通过哑协议备份到当前路径    bare 表示不备份工作区
+	智能协议： git clone --bare file:///Users/zhujian/git/git_learning/.git  new.git  # 智能协议带协议头，会显示备份进度，且速度更快
+
+将本地更新push到远端仓库：
+	git remote -v  # 查看远端仓库
+	git remote add 远端仓库名 file://+路径
+	git push 仓库名
+	
+---------------- github
+两种场景：
+场景1：本地无仓库，直接在github上新建仓库，并拉到本地
+场景2：本地有仓库，需要将本地仓库备份到github上
+	step1：github上新建仓库
+	step2：本地仓库建立跟github仓库的关联，
+		git remote add 自定义仓库命名  github上仓库的路径   # 自定义的远端仓库通常名称为 origin
+		git remote -v
+	step3：若 step2中的github仓库无文件，则直接进行step5，若有文件（如readme、license等），则需要先将仓库拉回本地并合并分支（或者 rebase 分支）
+	step4：将远端仓库拉回本地，并合并
+		git fetch 自定义仓库命名
+		git merge --allow-unrelated-histories 自定义仓库名/master 合并github上远程仓库的master分支（两分支不是父子关系，所以合并需要添加 --allow-unrelated-histories）
+	step5：push 本地仓库到远端仓库
+	  git push -u 自定义仓库名 分支名   # 第一次需要加 -u ，之后就不需要了
+	  
+	另外，step4 采用的是合并分支，通常也可以采用 rebase 分支，这样主线更清晰
+		git pull --rebase 自定义仓库名 master
+	  
+ps：其实在新建repository的时候，不勾选初始化README.md，远程仓库根本就没有任何的分支，当用户在本地提交代码到远程仓库时，这时远程仓库才创建主分支
+	  
+	  
+===== 场景2操作实例：
+git init
+git config --local user.name 'zhujian'
+git config --local user.email 'zhujiannupt@163.com'
+git add -A
+git status
+git commit -m 'docs:first version'
+git log --oneline
+
+git remote add origin git@github.com:SnipeSword/geektime.git
+git remote -v
+
+git pull --rebase origin master
+git push -u origin master
+	
+	
+
+
+
+
+
+
