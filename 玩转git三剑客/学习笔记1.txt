@@ -284,6 +284,18 @@ EOF
 ssh_config  sshd客户端的配置文件  https://www.cnblogs.com/xjshi/p/9146296.html
 
 
+======================= 实战4：版本回退
+版本回退的方法：
+
+方法一：
+git reset --soft 3cb7d82a6f2
+commit 版本回退到指定 commitID，工作区文件不变，会依据工作区文件状态，跟回退之后的最新commit比较，生成新的暂存区
+
+方法二：
+git reset --soft 3cb7d82a6f2
+commit 版本回退到指定 commitID，工作区和暂存区都会回退
+
+
 
 
 
