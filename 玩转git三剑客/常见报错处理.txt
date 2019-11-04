@@ -1,0 +1,12 @@
+常见错误处理：
+1. git push 报错：
+$ git push origin master
+Enumerating objects: 50, done.
+Counting objects: 100% (50/50), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (48/48), done.
+packet_write_wait: Connection to 140.82.113.4 port 22: Broken pipe
+fatal: the remote end hung up unexpectedly
+fatal: the remote end hung up unexpectedly
+
+处理方法：https://blog.csdn.net/qq_28193019/article/details/89165036
